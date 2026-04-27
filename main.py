@@ -10,10 +10,10 @@ import urllib.parse
 import json
 import traceback
 
-# === 填入你的阿里云 IP 地址 / Fill in your Aliyun IP ===
-# 请将下面的 x.x.x.x 替换为你真实的阿里云公网 IP
-SERVER_IP = "43.119.35.237"
-API_URL = f"http://{SERVER_IP}:8866/api/parse"
+# === 填入你的域名或 IP 地址 / Fill in your Domain or IP ===
+# 已更新为你的 SSL 域名
+DOMAIN = "x.19831018.xyz"
+API_URL = f"https://{DOMAIN}/api/parse"
 
 def main(page: ft.Page):
     """
