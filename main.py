@@ -11,8 +11,8 @@ import json
 import traceback
 
 # === 填入你的域名或 IP 地址 / Fill in your Domain or IP ===
-# 已更新为你的 SSL 域名
-DOMAIN = "x.19831018.xyz"
+# 已更新为你的 SSL 域名 / Updated to your SSL domain
+DOMAIN = os.getenv("X_DOWNLOAD_DOMAIN", "x.19831018.xyz")
 API_URL = f"https://{DOMAIN}/api/parse"
 
 def main(page: ft.Page):
