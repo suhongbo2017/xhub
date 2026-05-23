@@ -2,7 +2,9 @@ const CACHE_NAME = 'xhub-v1';
 const ASSETS = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  '/sw.js',
+  'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Outfit:wght@300;400;600&display=swap',
 ];
 
 self.addEventListener('install', (event) => {
