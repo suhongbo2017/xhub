@@ -1,9 +1,0 @@
-version: '3.8'
-
-services:
-  x-video-downloader:
-    build: .
-    container_name: x-video-downloader
-    ports:
-      - "8866:8866"
-    restart: unless-stopped

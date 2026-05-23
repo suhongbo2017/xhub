@@ -1,0 +1,120 @@
+nohup: ignoring input
+INFO:     Will watch for changes in these directories: ['/root/x_download']
+INFO:     Uvicorn running on http://0.0.0.0:8866 (Press CTRL+C to quit)
+INFO:     Started reloader process [438037] using StatReload
+INFO:     Started server process [438039]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     172.18.0.2:60650 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:60652 - "GET /logo.png HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:60668 - "GET /sw.js HTTP/1.1" 200 OK
+INFO:     172.18.0.2:60672 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:60676 - "POST /api/parse HTTP/1.1" 200 OK
+INFO:     172.18.0.2:48504 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:48516 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:39022 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:39038 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:39054 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:46926 - "GET /https%3A/fonts.googleapis.com/css2%3Ffamily%3DOrbitron%3Awght%40400%3B700%26family%3DOutfit%3Awght%40300%3B400%3B600%26display%3Dswap HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:33420 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:33430 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:33438 - "GET /favicon.png HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:36200 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:36214 - "GET /sw.js HTTP/1.1" 200 OK
+INFO:     172.18.0.2:36226 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:36228 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:53730 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:53732 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:55862 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:55874 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:56528 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:50346 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:36020 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:33350 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:44130 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:44132 - "POST /api/parse HTTP/1.1" 200 OK
+INFO:     172.18.0.2:44126 - "GET /sw.js HTTP/1.1" 200 OK
+INFO:     172.18.0.2:44148 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:44162 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:44174 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:34584 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:36784 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:60170 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:36698 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:36714 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:36718 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:38820 - "GET /https%3A/fonts.googleapis.com/css2%3Ffamily%3DOrbitron%3Awght%40400%3B700%26family%3DOutfit%3Awght%40300%3B400%3B600%26display%3Dswap HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:48076 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:41098 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:41114 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:49864 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:36668 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:37722 - "GET /robots.txt HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:37728 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:54450 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:54458 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:41516 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:41518 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:53014 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:53024 - "GET /assets/js/auth.js HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:53036 - "GET /%24%7Bdata.thumbnail%7D HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:53044 - "GET /js/twint_ch.js HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:53054 - "GET /%24%7Bitem.thumb%7D HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:53058 - "GET /%24%7Btask.thumb%7D HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:53068 - "GET /js/lkk_ch.js HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:49494 - "GET /assets/js/message.js HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:49506 - "GET /static/style/protect/index.js HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:49518 - "GET /css/support_parent.css HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:49520 - "GET /assets/js/qr_modal.js HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:49526 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:49532 - "GET /robots.txt HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:49542 - "GET /static/style/sys_files/index.js HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:49546 - "GET /bot-connect.js HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:54086 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:54094 - "GET /sw.js HTTP/1.1" 200 OK
+INFO:     172.18.0.2:54104 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:54116 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:54118 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:56766 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:56770 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:56778 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:60096 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:60106 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:60120 - "GET /sw.js HTTP/1.1" 200 OK
+INFO:     172.18.0.2:60132 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:60140 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:60144 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:60154 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:60160 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:50782 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:55978 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:55988 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:56002 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:43844 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:43852 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:43866 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:52504 - "HEAD / HTTP/1.1" 405 Method Not Allowed
+INFO:     172.18.0.2:52512 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:52518 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:48880 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:48890 - "GET /sw.js HTTP/1.1" 200 OK
+INFO:     172.18.0.2:48900 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:48912 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:48928 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:48930 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:48934 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:47552 - "GET /robots.txt HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:47562 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:46312 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:46318 - "GET /sw.js HTTP/1.1" 200 OK
+INFO:     172.18.0.2:46328 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:46332 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:46340 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:46354 - "GET / HTTP/1.1" 200 OK
+INFO:     172.18.0.2:37466 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     172.18.0.2:37478 - "GET /index.html HTTP/1.1" 404 Not Found
+INFO:     172.18.0.2:38872 - "GET / HTTP/1.1" 200 OK
+INFO:     120.229.127.133:42893 - "OPTIONS /api/parse HTTP/1.1" 200 OK
+INFO:     120.229.127.133:42661 - "POST /api/parse HTTP/1.1" 200 OK
+INFO:     120.229.127.133:42666 - "GET /api/download?video_url=https%3A%2F%2Fvideo.twimg.com%2Famplify_video%2F2047198503395639296%2Fvid%2Favc1%2F1920x1080%2FgYJMKPu9LbXodvZp.mp4%3Ftag%3D21&title=%E7%B3%96%E5%BF%83Vlog%E5%AE%98%E6%96%B9%20-%20%23%E7%B3%96%E5%BF%83Vlog%20%23%E6%83%85%E6%B7%B1%E5%8F%89%E5%96%94%20%23%E5%B7%A8%E4%B9%B3%20%23%E4%BA%BA%E5%A6%BB%20%23%E8%B0%83%E6%95%99%20%23%E6%B7%AB%E8%AF%AD%20%E6%B7%B1%E5%A4%9C%E7%89%A9%E4%B8%9A%E6%9C%8D%E5%8A%A1%20%E9%85%92%E5%90%8E%E7%9A%84%E6%B2%89%E6%B2%A6%20%E5%81%9C%E7%94%B5%E4%BA%86%E4%BF%9D%E5%AE%89%E5%B8%88%E5%82%85%E6%9D%A5%E4%BF%AE%E6%88%91%E7%A9%B4&is_m3u8=false HTTP/1.1" 200 OK
+INFO:     120.229.127.133:42824 - "GET /api/download?video_url=https%3A%2F%2Fvideo.twimg.com%2Famplify_video%2F2047198503395639296%2Fvid%2Favc1%2F1920x1080%2FgYJMKPu9LbXodvZp.mp4%3Ftag%3D21&title=%E7%B3%96%E5%BF%83Vlog%E5%AE%98%E6%96%B9%20-%20%23%E7%B3%96%E5%BF%83Vlog%20%23%E6%83%85%E6%B7%B1%E5%8F%89%E5%96%94%20%23%E5%B7%A8%E4%B9%B3%20%23%E4%BA%BA%E5%A6%BB%20%23%E8%B0%83%E6%95%99%20%23%E6%B7%AB%E8%AF%AD%20%E6%B7%B1%E5%A4%9C%E7%89%A9%E4%B8%9A%E6%9C%8D%E5%8A%A1%20%E9%85%92%E5%90%8E%E7%9A%84%E6%B2%89%E6%B2%A6%20%E5%81%9C%E7%94%B5%E4%BA%86%E4%BF%9D%E5%AE%89%E5%B8%88%E5%82%85%E6%9D%A5%E4%BF%AE%E6%88%91%E7%A9%B4&is_m3u8=false HTTP/1.1" 200 OK

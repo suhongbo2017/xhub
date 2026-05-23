@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="Theme.App" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">#050a10</item>
-        <item name="colorSecondary">#00f2ff</item>
-    </style>
-</resources>

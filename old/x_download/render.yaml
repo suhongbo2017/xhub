@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: x-video-downloader
+    env: python
+    region: singapore
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
