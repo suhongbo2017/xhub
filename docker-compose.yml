@@ -1,0 +1,32 @@
+# ===================================================================
+# Docker Compose - 最简部署方式
+#
+# 使用前准备:
+#   1. 确保 xcookies.txt 已准备好
+#   2. docker compose up -d
+# ===================================================================
+
+services:
+  xhub:
+    build: .
+    container_name: xhub
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-8866}:8866"
+    volumes:
+      # Cookie 文件（只读）
+      - ./xcookies.txt:/app/xcookies.txt:ro
+      # 可选：Cookie 目录共享
+      - ./cookies:/app/cookies:ro
+      # 日志持久化
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+    mem_limit: 1g
+    cpus: 2.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8866/api/parse"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s

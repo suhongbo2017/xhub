@@ -1,97 +1,133 @@
-# X Video Downloader (X HUB) - Ubuntu PWA 版本
+# X Video Downloader (X HUB) - 一键部署版
 
-本项目是一个专注于 Ubuntu 服务器部署的 X (Twitter) 视频下载后端服务。它被设计为提供纯粹的 Web (PWA) 体验，由 FastAPI 后端处理视频解析（基于 `yt-dlp`）和高速代理下载。
+一个基于 FastAPI + yt-dlp 的 X (Twitter) 视频下载服务。
 
-## 目录结构
+## 🚀 快速部署（推荐）
 
-- `server.py`: FastAPI 核心后端代码。
-- `index.html`: Web PWA 前端界面。
-- `sw.js` & `manifest.json`: PWA 服务工作线程与图标配置。
-- `xcookies.txt`: Twitter 的 Cookies 文件，用于绕过反爬机制。
-- `requirements.txt`: Python 依赖列表。
-- `start.sh`: 自动启动和依赖安装脚本。
-- `xhub.service`: Ubuntu Systemd 服务配置文件。
-
-## Ubuntu 服务器部署指南
-
-假设您的 Ubuntu 服务器已经安装了 Nginx 并且配置了域名和 SSL 证书。
-
-### 1. 准备运行环境
-
-确保系统安装了 `python3`、`python3-venv`、`python3-pip` 以及 `ffmpeg`（用于处理 m3u8 高清视频合并）。
+### Docker（最快，5 分钟搞定）
 
 ```bash
-sudo apt update
-sudo apt install python3 python3-venv python3-pip ffmpeg
+# 1. 确保 xcookies.txt 已准备好
+
+# 2. 一键启动
+docker build -t xhub . && docker run -d --name xhub -p 8866:8866 -v $(pwd)/xcookies.txt:/app/xcookies.txt xhub
+
+# 访问 http://localhost:8866
 ```
 
-### 2. 部署代码
-
-将本文件夹内的所有代码上传到服务器。建议放置在 `/opt/xhub` 目录下：
+### Docker Compose（更完整）
 
 ```bash
-sudo mkdir -p /opt/xhub
-# (使用 scp 或 git 拷贝代码到该目录)
-cd /opt/xhub
+# 创建 .env 文件（复制 .env.example）
+cp .env.example .env
 
-# 赋予启动脚本执行权限
-sudo chmod +x start.sh
+# 一行命令启动
+docker compose up -d
+
+# 查看日志
+docker compose logs -f
+
+# 停止
+docker compose down
 ```
 
-### 3. 配置开机自启与守护进程 (Systemd)
-
-打开随代码附带的 `xhub.service` 文件，确认里面的 `WorkingDirectory` 和 `ExecStart` 路径符合您的实际部署路径（默认配置为 `/opt/xhub`）。
-
-将该服务文件复制到 systemd 目录：
+### Linux 服务器（Systemd 守护）
 
 ```bash
-sudo cp xhub.service /etc/systemd/system/
+# 运行部署脚本
+chmod +x deploy.sh && ./deploy.sh mode=systemd
+
+# 管理服务
+sudo systemctl status xhub
+sudo journalctl -u xhub -f
 ```
 
-重新加载 systemd 并启动服务：
+### Windows 本地开发
 
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable xhub.service
-sudo systemctl start xhub.service
+```batch
+REM 运行部署脚本
+deploy.bat
+
+REM 启动服务
+uvicorn server:app --host 0.0.0.0 --port 8866
 ```
 
-您可以查看服务状态以确保它正在正常运行并正在监听 8866 端口：
-```bash
-sudo systemctl status xhub.service
+---
+
+## 📋 部署方式对比
+
+| 方式 | 适用场景 | 难度 | 速度 |
+|------|---------|------|------|
+| **Docker** | 生产环境、云服务器 | ⭐ | ⚡⚡⚡ |
+| **Docker Compose** | 有 Nginx 等配套 | ⭐⭐ | ⚡⚡ |
+| **deploy.sh** | Linux 多种模式 | ⭐ | ⚡⚡⚡ |
+| **Python 直接运行** | 开发调试 | ⭐⭐ | ⚡ |
+
+---
+
+## 🔧 Cookie 获取方法
+
+由于 Twitter/X 的反爬机制，需要定期更新 Cookie：
+
+1. 打开 Chrome，登录 twitter.com
+2. F12 → Network → 刷新页面 → 点击任意请求
+3. Headers → Request Headers → 找到 `Cookie`
+4. 复制值保存到 `xcookies.txt`（一行即可）
+
+或者使用浏览器扩展导出：[Export Cookies](https://chrome.google.com/webstore/detail/nlfepjoapihjhhbdhlfelnkfhdgmab)
+
+---
+
+## 🏗️ 项目结构
+
 ```
-*(注：`start.sh` 在首次运行时会自动创建虚拟环境并执行 `pip install -r requirements.txt`，所以初次启动可能需要等待几十秒完成安装)*
-
-### 4. Nginx 反向代理配置
-
-在您的 Nginx 配置文件中（通常位于 `/etc/nginx/sites-available/` 下），将访问请求反向代理至 8866 端口。例如：
-
-```nginx
-server {
-    listen 443 ssl;
-    server_name x.19831018.xyz;
-
-    # SSL 证书配置省略...
-
-    location / {
-        proxy_pass http://127.0.0.1:8866;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-配置完成后，重启 Nginx：
-```bash
-sudo systemctl restart nginx
+x_download/
+├── server.py          # FastAPI 后端核心
+├── index.html         # Web PWA 前端界面
+├── sw.js              # Service Worker (PWA)
+├── manifest.json      # PWA 配置
+├── requirements.txt   # Python 依赖
+├── xcookies.txt       # ⚠️ Twitter Cookie（必须提供）
+│
+├── Dockerfile         # Docker 镜像构建文件
+├── docker-compose.yml # Docker Compose 配置
+├── .env.example       # 环境变量模板
+├── nginx.conf         # Nginx 反向代理配置
+├── deploy.sh          # 🆕 Linux 一键部署脚本
+├── deploy.bat         # 🆕 Windows 部署脚本
+├── start.sh           # 传统启动脚本
+├── cookies/           # Cookie 备用目录
+└── logs/              # 运行时日志
 ```
 
-## 使用方法
+---
 
-部署完成后，在手机的 Safari 或 Chrome 浏览器中访问 `https://x.19831018.xyz`。
-由于具备完整的 SSL 和 Manifest 配置，浏览器会提示您**“添加到主屏幕”**。添加后，您可以像使用原生 App 一样全屏、独立运行 X HUB 进行视频下载。
+## 🛠️ 常见问题
 
-## 维护建议
+### Q: 解析失败 / 画质低
+A: Cookie 过期或被风控。请重新获取最新 Cookie 并覆盖 `xcookies.txt`。
 
-如果遇到无法解析或解析画质受限的问题，说明当前的 Twitter Cookie 可能已经过期或被风控。请定期使用浏览器导出工具重新获取 Cookies，并覆盖服务器上的 `xcookies.txt` 文件。重启服务即可生效 (`sudo systemctl restart xhub.service`)。
+### Q: 大文件下载中断
+A: 检查服务器内存是否充足，建议 ≥1GB RAM。
+
+### Q: HLS 视频无法合并
+A: 确保服务器安装了 ffmpeg：`apt install ffmpeg` 或 `yum install ffmpeg`
+
+---
+
+## 📊 技术栈
+
+- **后端**: FastAPI + Uvicorn
+- **视频解析**: yt-dlp
+- **视频处理**: FFmpeg
+- **前端**: Vanilla HTML/CSS/JS (PWA)
+- **容器化**: Docker
+
+---
+
+## 🔒 安全提示
+
+生产环境建议使用：
+1. HTTPS（Let's Encrypt 免费证书）
+2. Nginx 反向代理
+3. 考虑添加密码保护

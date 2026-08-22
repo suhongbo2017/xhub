@@ -2,3 +2,11 @@ __pycache__/
 *.log
 xcookies.txt
 *.pyc
+# Logs
+server.log
+server_error.log
+error_report.json
+
+# Python cache
+__pycache__/
+*.pyc

@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+venv/
+*.log
+server_error.log
+server.log
+error_report.json
+.git/
+.github/
+.DS_Store
+*.md
+.env
