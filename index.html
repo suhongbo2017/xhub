@@ -249,8 +249,13 @@
 
         .list-content { flex: 1; min-width: 0; }
         .list-title { font-size: 0.9rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
-        .list-progress { height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--primary); transition: width 0.3s; }
+
+        /* History item URL row */
+        .history-url-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+        .history-url-text { flex: 1; min-width: 0; font-size: 0.72rem; color: var(--primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .copy-btn { flex-shrink: 0; padding: 2px 8px; font-size: 0.7rem; background: var(--primary); color: #fff; border: none; border-radius: 4px; cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
+        .copy-btn:hover { opacity: 1; }
+        .copied { background: #4caf50 !important; }
 
         .empty-state { text-align: center; padding: 4rem 1rem; opacity: 0.4; }
 
@@ -288,14 +293,6 @@
             <div id="result-container"></div>
         </div>
 
-        <!-- 任务视图 / Task List View -->
-        <div id="view-tasks" class="view">
-            <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
-                <span style="color: var(--primary)">⚡</span> 活跃任务 / Active Tasks
-            </h2>
-            <div id="task-list"></div>
-        </div>
-
         <!-- 历史视图 / History View -->
         <div id="view-history" class="view">
             <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
@@ -311,10 +308,6 @@
             <span class="tab-icon">🎯</span>
             <span class="tab-label">Parser</span>
         </div>
-        <div class="tab-item" onclick="switchView('tasks')">
-            <span class="tab-icon">⚡</span>
-            <span class="tab-label">Tasks</span>
-        </div>
         <div class="tab-item" onclick="switchView('history')">
             <span class="tab-icon">📜</span>
             <span class="tab-label">History</span>
@@ -326,8 +319,7 @@
         // Automatically detect API base URL (supports HTTP/HTTPS & any domain)
         const API_BASE = window.location.origin;
         
-        // 应用状态存储 / App State
-        let activeTasks = [];
+        // 下载历史存储 / Download History
         let downloadHistory = JSON.parse(localStorage.getItem('x_hub_history') || '[]');
 
         /**
@@ -340,11 +332,9 @@
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
             const tabs = document.querySelectorAll('.tab-item');
             if (viewId === 'search') tabs[0].classList.add('active');
-            if (viewId === 'tasks') tabs[1].classList.add('active');
-            if (viewId === 'history') tabs[2].classList.add('active');
+            if (viewId === 'history') tabs[1].classList.add('active');
 
             if (viewId === 'history') renderHistory();
-            if (viewId === 'tasks') renderTasks();
         }
 
         /**
@@ -386,23 +376,39 @@
             }
         }
 
+/**
+         * HTML 转义 / Escape HTML
+         */
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
         /**
          * 渲染解析结果卡片 / Render result card
          */
         function renderResult(data) {
             const container = document.getElementById('result-container');
+            window._currentVideoData = {
+                url: data.url,
+                title: data.title,
+                thumb: data.thumbnail,
+                is_m3u8: !!data.is_m3u8
+            };
             container.innerHTML = `
                 <div class="video-card">
                     <div class="thumb-wrapper">
-                        <img src="${data.thumbnail}" onerror="this.src='https://abs.twimg.com/errors/logo46x38.png'">
+                        <img src="${escapeHtml(data.thumbnail)}" onerror="this.src='https://abs.twimg.com/errors/logo46x38.png'">
                     </div>
                     <div class="video-info">
-                        <div class="video-title">${data.title}</div>
+                        <div class="video-title">${escapeHtml(data.title)}</div>
                         <div class="meta-info">
                             <span>Quality: ${data.quality}</span>
                             <span>Duration: ${data.duration}s</span>
                         </div>
-                        <button class="download-btn" onclick="startDownload('${data.url}', '${encodeURIComponent(data.title)}', '${data.thumbnail}', ${data.is_m3u8})">
+                        <button class="download-btn" id="download-btn">
                             <span>🚀</span> ${data.is_m3u8 ? '服务器合并下载 (HLS)' : '开始下载 (START DOWNLOAD)'}
                         </button>
                         <div style="font-size: 0.7rem; color: #888; margin-top: 10px; text-align: center;">
@@ -411,94 +417,93 @@
                     </div>
                 </div>
             `;
+            // Bind via addEventListener to avoid inline onclick escaping issues
+            document.getElementById('download-btn').addEventListener('click', async () => {
+                await doDownload(
+                    window._currentVideoData.url,
+                    window._currentVideoData.title,
+                    window._currentVideoData.thumb,
+                    window._currentVideoData.is_m3u8
+                );
+            }, { once: true });
         }
 
         /**
-         * 开始下载：根据视频类型（MP4/HLS）通过后端转发或下载
-         * Start Download: Forward or merge via backend depending on type
+         * 实际执行下载：POST + blob + a.download
          */
-        function startDownload(url, title, thumb, is_m3u8 = false) {
-            const taskId = Date.now();
-            const decodedTitle = decodeURIComponent(title);
+        async function doDownload(url, title, thumb, is_m3u8 = false) {
+            const safeTitle = String(title || 'video').replace(/[<>:"\/\\|?*]/g, '_');
+            const btn = document.getElementById('download-btn');
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<span>⏳</span> 正在下载...';
+            btn.disabled = true;
             
-            // 添加到活跃任务列表 / Add to active tasks
-            activeTasks.push({
-                id: taskId,
-                title: decodedTitle,
-                thumb: thumb,
-                progress: 0
-            });
-
-            // 自动跳转到任务视图 / Switch to tasks view
-            switchView('tasks');
-
-            // 构造下载请求 URL / Build download URL
-            const downloadUrl = `${API_BASE}/api/download?video_url=${encodeURIComponent(url)}&title=${title}&is_m3u8=${is_m3u8}`;
-            
-            // 使用隐形 A 标签触发浏览器原生下载弹窗
-            // Use anchor to trigger native browser download
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = ""; 
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-
-            // 模拟进度条（由于浏览器流下载在前端难以精准捕捉，这里使用模拟反馈）
-            // Progress bar simulation for UX
-            let prog = 0;
-            const taskObj = activeTasks.find(t => t.id === taskId);
-            
-            const interval = setInterval(() => {
-                prog += Math.random() * 15;
-                if (prog >= 100) {
-                    prog = 100;
-                    clearInterval(interval);
-                    completeTask(taskId);
+            try {
+                // POST to backend - use absolute URL to avoid any origin confusion
+                const apiBase = window.location.origin;
+                const apiUrl = apiBase + '/api/download';
+                console.log('[Download] Target:', apiUrl);
+                console.log('[Download] Payload:', JSON.stringify({
+                    video_url: url,
+                    title: safeTitle,
+                    is_m3u8: !!is_m3u8
+                }, null, 2));
+                
+                const resp = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        video_url: url,
+                        title: safeTitle,
+                        is_m3u8: !!is_m3u8
+                    })
+                });
+                
+                console.log('[Download] Response status:', resp.status);
+                
+                if (!resp.ok) {
+                    let msg = 'HTTP ' + resp.status;
+                    try { msg = (await resp.json()).detail || msg; } catch(e) {}
+                    throw new Error(msg);
                 }
-                if (taskObj) taskObj.progress = prog;
-                renderTasks();
-            }, 600);
-        }
-
-        /**
-         * 下载完成：从任务列表移动到历史记录 / Move task to history
-         */
-        function completeTask(id) {
-            const taskIndex = activeTasks.findIndex(t => t.id === id);
-            if (taskIndex > -1) {
-                const task = activeTasks.splice(taskIndex, 1)[0];
+                
+                // Download the blob
+                const blob = await resp.blob();
+                console.log('[Download] Blob size:', blob.size, 'bytes');
+                if (blob.size < 500) {
+                    throw new Error('Response too small — not a valid video file');
+                }
+                
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = URL.createObjectURL(blob);
+                a.download = safeTitle + '.mp4';
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    URL.revokeObjectURL(a.href);
+                    a.remove();
+                }, 5000);
+                
+                // Save to history
                 downloadHistory.unshift({
-                    ...task,
+                    id: Date.now(),
+                    title: safeTitle,
+                    thumb: thumb,
+                    url: url,
                     date: new Date().toLocaleDateString()
                 });
-                // 持久化存储 / Save to localstorage
                 localStorage.setItem('x_hub_history', JSON.stringify(downloadHistory.slice(0, 50)));
-                renderTasks();
+                showToast('已保存至历史记录 / Saved to history');
+                
+            } catch (err) {
+                console.error('[Download] Fatal error:', err);
+                alert('Download failed\n\n' + (err.message || String(err)));
+            } finally {
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
             }
-        }
-
-        /**
-         * 渲染任务列表 / Render active task list
-         */
-        function renderTasks() {
-            const container = document.getElementById('task-list');
-            if (activeTasks.length === 0) {
-                container.innerHTML = '<div class="empty-state">暂无下载中的任务 / No active downloads</div>';
-                return;
-            }
-
-            container.innerHTML = activeTasks.map(task => `
-                <div class="list-item">
-                    <img src="${task.thumb}" class="list-thumb">
-                    <div class="list-content">
-                        <div class="list-title">${task.title}</div>
-                        <div class="list-progress">
-                            <div class="progress-bar" style="width: ${task.progress}%"></div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
         }
 
         /**
@@ -511,12 +516,17 @@
                 return;
             }
 
-            container.innerHTML = downloadHistory.map(item => `
+            container.innerHTML = downloadHistory.map((item, idx) => `
                 <div class="list-item">
                     <img src="${item.thumb}" class="list-thumb">
                     <div class="list-content">
                         <div class="list-title">${item.title}</div>
                         <div style="font-size: 0.75rem; opacity: 0.5;">已于 ${item.date} 下载完成</div>
+                        ${(item.url && item.url.length > 0) ? `
+                        <div class="history-url-row">
+                            <span class="history-url-text" title="${item.url}">${item.url}</span>
+                            <button class="copy-btn" data-action="copy-history-url" data-idx="${idx}">📋 复制</button>
+                        </div>` : ''}
                     </div>
                 </div>
             `).join('');
@@ -527,6 +537,33 @@
         document.getElementById('url-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') parseVideo();
         });
+        // 历史记录复制按钮（事件委托）/ History copy button (event delegation)
+        document.getElementById('history-list').addEventListener('click', (e) => {
+            const btn = e.target.closest('.copy-btn[data-action="copy-history-url"]');
+            if (!btn) return;
+            const idx = parseInt(btn.dataset.idx, 10);
+            const item = downloadHistory[idx];
+            if (item && item.url) {
+                navigator.clipboard.writeText(item.url).then(() => {
+                    btn.textContent = '✓';
+                    btn.classList.add('copied');
+                    setTimeout(() => { btn.textContent = '📋 复制'; btn.classList.remove('copied'); }, 1500);
+                }).catch(() => {});
+            }
+        });
+        // Toast notification
+        function showToast(message) {
+            let toast = document.getElementById('toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toast';
+                toast.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:10px 20px;border-radius:10px;font-size:0.85rem;z-index:9999;transition:opacity 0.3s;pointer-events:none;';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = message;
+            toast.style.opacity = '1';
+            toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+        }
 
     </script>
     <script>

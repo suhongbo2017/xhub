@@ -8,19 +8,9 @@
   "theme_color": "#00f2ff",
   "icons": [
     {
-      "src": "https://abs.twimg.com/errors/logo46x38.png",
-      "sizes": "46x46",
-      "type": "image/png"
-    },
-    {
-      "src": "https://abs.twimg.com/errors/logo46x38.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://abs.twimg.com/errors/logo46x38.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%2300f2ff' width='512' height='512' rx='80'/><text x='256' y='350' font-size='280' font-family='Arial,sans-serif' text-anchor='middle' fill='%23050a10'>X</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
     }
   ]
 }
