@@ -3,21 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>X HUB | Premium Downloader</title>
+    <title>X HUB | Mosaic Downloader</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#050a10">
-    <link rel="apple-touch-icon" href="https://abs.twimg.com/errors/logo46x38.png">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#0d0d2b">
     <style>
+        /* ===== 复古黑黄配色变量 ===== */
         :root {
-            --primary: #00f2ff;
-            --secondary: #0060ff;
-            --bg: #050a10;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --text: #e0e0e0;
-            --accent: #ff00ff;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg-dark: #1a1a1a;
+            --bg-mid: #2b2b2b;
+            --bg-light: #3d3d3d;
+            --yellow-primary: #ffd700;
+            --yellow-dark: #daa520;
+            --yellow-light: #fff4b0;
+            --yellow-accent: #ffaa00;
+            --red-retro: #cc3333;
+            --green-retro: #4caf50;
+            --text-main: #f5f5dc;
+            --text-dim: #999999;
+            --border-thick: 4px solid var(--yellow-dark);
+            --border-thin: 2px solid rgba(255,215,0,0.3);
         }
 
         * {
@@ -28,81 +32,143 @@
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: Georgia, 'Times New Roman', serif;
             overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(0, 242, 255, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(255, 0, 255, 0.05) 0%, transparent 40%);
             min-height: 100vh;
+            position: relative;
+        }
+
+        /* 复古纸张纹理背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255,215,0,0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,215,0,0.02) 0%, transparent 40%),
+                radial-gradient(circle at 50% 80%, rgba(255,215,0,0.03) 0%, transparent 45%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 顶部装饰条纹 */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--yellow-primary),
+                var(--yellow-primary) 20px,
+                var(--bg-dark) 20px,
+                var(--bg-dark) 40px
+            );
+            pointer-events: none;
+            z-index: 9999;
         }
 
         .header {
-            padding: 2.5rem 1.5rem 1.5rem;
+            padding: 3rem 1.5rem 2rem;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
 
+        /* 复古招牌 Logo */
         .brand {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-family: Georgia, serif;
+            font-size: 2.8rem;
+            font-weight: bold;
             letter-spacing: 4px;
-            text-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
+            color: var(--yellow-primary);
+            text-shadow: 2px 2px 0 var(--yellow-dark), 4px 4px 0 rgba(0,0,0,0.3);
+            position: relative;
+            display: inline-block;
+            border: 3px double var(--yellow-dark);
+            padding: 0.8rem 2rem;
+            background: var(--bg-mid);
+        }
+
+        .brand::before {
+            content: '★ X HUB ★';
+            position: absolute;
+            top: -1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--yellow-dark);
+            letter-spacing: 6px;
+            white-space: nowrap;
         }
 
         .container {
-            max-width: 500px;
+            max-width: 520px;
             margin: 0 auto;
-            padding: 0 1.5rem 6rem;
+            padding: 0 1.5rem 8rem;
+            position: relative;
+            z-index: 1;
         }
 
+        /* 搜索区域 - 复古输入框 */
         .search-container {
             position: relative;
             margin: 2rem 0;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
+            background: var(--bg-mid);
+            border: var(--border-thick);
             padding: 8px;
             display: flex;
             align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
+            gap: 8px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 4px 4px 0 rgba(0,0,0,0.3);
         }
 
         input {
             flex: 1;
             background: transparent;
             border: none;
-            padding: 12px 16px;
-            color: white;
-            font-size: 1rem;
+            padding: 14px 16px;
+            color: var(--yellow-primary);
+            font-family: Georgia, serif;
+            font-size: 0.95rem;
             outline: none;
             width: 100%;
         }
 
+        input::placeholder {
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
         .btn-parse {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border: none;
-            width: 46px;
-            height: 46px;
-            border-radius: 14px;
+            background: var(--yellow-primary);
+            border: 2px solid var(--yellow-dark);
+            width: 56px;
+            height: 56px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 5px 15px rgba(0, 242, 255, 0.3);
+            font-size: 1.5rem;
+            box-shadow: 3px 3px 0 var(--yellow-dark);
+            transition: all 0.1s;
+            color: var(--bg-dark);
+        }
+
+        .btn-parse:hover {
+            background: var(--yellow-light);
         }
 
         .btn-parse:active {
-            transform: scale(0.9);
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 var(--yellow-dark);
         }
 
+        /* 加载动画 - 复古齿轮旋转 */
         .loading {
             display: none;
             text-align: center;
@@ -110,70 +176,102 @@
         }
 
         .shimmer {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top: 3px solid var(--primary);
+            width: 48px;
+            height: 48px;
+            border: 4px dashed var(--yellow-primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto;
+            position: relative;
         }
 
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .shimmer::after {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border: 2px solid var(--yellow-dark);
+            border-radius: 50%;
+        }
 
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 视频卡片 - 复古海报风格 */
         .video-card {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
+            background: var(--bg-mid);
+            border: var(--border-thick);
             overflow: hidden;
-            animation: fadeInUp 0.5s ease-out;
-            backdrop-filter: blur(20px);
+            box-shadow: 5px 5px 0 rgba(0,0,0,0.4);
+            animation: slideIn 0.3s ease-out;
+            position: relative;
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideIn {
+            from { transform: translateY(-15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* 复古边框装饰角标 */
+        .video-card::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            border: 1px solid var(--yellow-dark);
+            pointer-events: none;
+            z-index: 1;
         }
 
         .thumb-wrapper {
             position: relative;
             aspect-ratio: 16/9;
             overflow: hidden;
+            background: var(--bg-dark);
         }
 
         .thumb-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            filter: sepia(0.3) contrast(1.1);
         }
 
         .video-info {
-            padding: 1.5rem;
+            padding: 1.2rem;
+            position: relative;
         }
 
         .video-title {
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 1.05rem;
+            font-weight: bold;
             margin-bottom: 0.8rem;
             line-break: anywhere;
+            color: var(--yellow-primary);
+            font-style: italic;
         }
 
         .meta-info {
             display: flex;
-            gap: 1rem;
-            font-size: 0.85rem;
-            opacity: 0.6;
+            gap: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--text-dim);
             margin-bottom: 1.5rem;
+            padding: 0.6rem 0;
+            border-top: 1px dashed var(--yellow-dark);
+            border-bottom: 1px dashed var(--yellow-dark);
         }
 
         .download-btn {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border: none;
+            background: var(--yellow-primary);
+            border: 3px solid var(--yellow-dark);
             width: 100%;
-            padding: 1rem;
-            border-radius: 16px;
-            color: #050a10;
-            font-weight: 700;
+            padding: 14px;
+            color: var(--bg-dark);
+            font-family: Georgia, serif;
+            font-weight: bold;
             font-size: 1rem;
             letter-spacing: 1px;
             cursor: pointer;
@@ -181,88 +279,231 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            transition: all 0.3s;
+            box-shadow: 3px 3px 0 var(--yellow-dark);
+            transition: all 0.1s;
+        }
+
+        .download-btn:hover {
+            background: var(--yellow-light);
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0 var(--yellow-dark);
         }
 
         .download-btn:active {
-            transform: scale(0.98);
-            filter: brightness(1.2);
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 var(--yellow-dark);
         }
 
+        /* 底部导航栏 - 复古按钮组 */
         .nav-bar {
             position: fixed;
-            bottom: 2rem;
+            bottom: 1.5rem;
             left: 50%;
             transform: translateX(-50%);
-            width: 280px;
-            background: rgba(10, 20, 30, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 30px;
+            width: 290px;
+            background: var(--bg-mid);
+            border: var(--border-thick);
             display: flex;
             padding: 6px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            box-shadow: 6px 6px 0 rgba(0,0,0,0.5);
             z-index: 1000;
         }
 
         .tab-item {
             flex: 1;
-            padding: 10px;
+            padding: 12px 8px;
             text-align: center;
             cursor: pointer;
-            border-radius: 25px;
-            transition: all 0.3s;
+            transition: all 0.1s;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 4px;
+            color: var(--text-dim);
+        }
+
+        .tab-item:hover {
+            background: rgba(255,215,0,0.1);
         }
 
         .tab-item.active {
-            background: var(--glass-border);
-            color: var(--primary);
+            background: var(--yellow-primary);
+            color: var(--bg-dark);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
         }
 
-        .tab-icon { font-size: 1.2rem; }
-        .tab-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+        .tab-icon { font-size: 1.3rem; }
+        .tab-label { 
+            font-size: 0.65rem; 
+            font-weight: bold; 
+            letter-spacing: 1px;
+        }
 
+        /* 视图切换 */
         .view { display: none; }
         .view.active { display: block; }
 
+        /* 列表项 - 复古票据风格 */
         .list-item {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 18px;
+            background: var(--bg-mid);
+            border: 2px solid var(--yellow-dark);
             padding: 12px;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 12px;
+            position: relative;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+        }
+
+        .list-item::after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: var(--yellow-primary);
+            border-radius: 50%;
+            opacity: 0.5;
         }
 
         .list-thumb {
             width: 80px;
             height: 45px;
-            border-radius: 8px;
             object-fit: cover;
+            border: 2px solid var(--yellow-dark);
+            filter: sepia(0.2);
         }
 
         .list-content { flex: 1; min-width: 0; }
-        .list-title { font-size: 0.9rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
-        .list-progress { height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--primary); transition: width 0.3s; }
+        .list-title { 
+            font-size: 0.9rem; 
+            font-weight: bold; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            margin-bottom: 4px;
+            color: var(--yellow-light);
+        }
+        .list-progress { 
+            height: 8px; 
+            background: var(--bg-dark); 
+            border: 1px solid var(--yellow-dark);
+            overflow: hidden; 
+        }
+        .progress-bar { 
+            height: 100%; 
+            background: repeating-linear-gradient(
+                45deg,
+                var(--yellow-primary),
+                var(--yellow-primary) 4px,
+                var(--yellow-dark) 4px,
+                var(--yellow-dark) 8px
+            );
+        }
 
-        .empty-state { text-align: center; padding: 4rem 1rem; opacity: 0.4; }
+        /* 历史 URL 行 - 复古标签风格 */
+        .history-url-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 8px;
+            background: var(--bg-dark);
+            border: 1px dashed var(--yellow-dark);
+            font-family: Georgia, serif;
+            font-size: 0.7rem;
+            color: var(--yellow-primary);
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            background: var(--yellow-primary);
+            border: 2px solid var(--yellow-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+            transition: all 0.1s;
+            color: var(--bg-dark);
+        }
+
+        .copy-btn:hover {
+            background: var(--yellow-light);
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+        }
+
+        .copy-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0 0 0 rgba(0,0,0,0.3);
+        }
+
+        .copy-btn.copied {
+            background: var(--green-retro);
+            border-color: #2e7d32;
+        }
+
+        /* 空状态 & 错误提示 */
+        .empty-state { 
+            text-align: center; 
+            padding: 5rem 1rem; 
+            color: var(--text-dim);
+            font-style: italic;
+        }
 
         #error-msg {
-            color: #ff4d4d;
-            background: rgba(255, 77, 77, 0.1);
+            color: var(--red-retro);
+            background: rgba(204, 51, 51, 0.08);
             padding: 12px;
-            border-radius: 12px;
+            border: 2px solid var(--red-retro);
             margin-bottom: 1.5rem;
             display: none;
             font-size: 0.9rem;
             text-align: center;
+            font-weight: bold;
+        }
+
+        /* Toast 通知 - 复古标签风格 */
+        .toast-pixel {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: var(--yellow-primary);
+            border: 3px solid var(--yellow-dark);
+            color: var(--bg-dark);
+            font-family: Georgia, serif;
+            font-weight: bold;
+            font-size: 0.9rem;
+            z-index: 10000;
+            pointer-events: none;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+            animation: toastIn 0.2s ease-out;
+        }
+
+        .toast-pixel.success {
+            background: var(--green-retro);
+            border-color: #2e7d32;
+        }
+
+        .toast-pixel.error {
+            background: var(--red-retro);
+            border-color: #992222;
+            color: white;
+        }
+
+        @keyframes toastIn {
+            from { transform: translateX(-50%) translateY(-15px) scale(0.95); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
         }
     </style>
 </head>
@@ -282,7 +523,7 @@
 
             <div class="loading" id="search-loading">
                 <div class="shimmer"></div>
-                <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.5;">正在连接矩阵... / Parsing Matrix...</p>
+                <p style="margin-top: 1rem; font-size: 0.85rem; opacity: 0.6;">正在连接矩阵... / Parsing Matrix...</p>
             </div>
 
             <div id="result-container"></div>
@@ -290,16 +531,16 @@
 
         <!-- 任务视图 / Task List View -->
         <div id="view-tasks" class="view">
-            <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
-                <span style="color: var(--primary)">⚡</span> 活跃任务 / Active Tasks
+            <h2 style="margin-bottom: 1.5rem; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; color: var(--accent-cyan);">
+                <span>⚡</span> 活跃任务 / Active Tasks
             </h2>
             <div id="task-list"></div>
         </div>
 
         <!-- 历史视图 / History View -->
         <div id="view-history" class="view">
-            <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
-                <span style="color: var(--primary)">📜</span> 下载历史 / Download History
+            <h2 style="margin-bottom: 1.5rem; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; color: var(--accent-cyan);">
+                <span>📜</span> 下载历史 / Download History
             </h2>
             <div id="history-list"></div>
         </div>
@@ -323,7 +564,6 @@
 
     <script>
         // 自动识别 API 基准地址 (支持 HTTP/HTTPS 与 任意域名)
-        // Automatically detect API base URL (supports HTTP/HTTPS & any domain)
         const API_BASE = window.location.origin;
         
         // 应用状态存储 / App State
@@ -390,6 +630,7 @@
          * 渲染解析结果卡片 / Render result card
          */
         function renderResult(data) {
+            window._currentVideoData = data;
             const container = document.getElementById('result-container');
             container.innerHTML = `
                 <div class="video-card">
@@ -402,15 +643,42 @@
                             <span>Quality: ${data.quality}</span>
                             <span>Duration: ${data.duration}s</span>
                         </div>
-                        <button class="download-btn" onclick="startDownload('${data.url}', '${encodeURIComponent(data.title)}', '${data.thumbnail}', ${data.is_m3u8})">
+                        <button class="download-btn" id="download-btn">
                             <span>🚀</span> ${data.is_m3u8 ? '服务器合并下载 (HLS)' : '开始下载 (START DOWNLOAD)'}
                         </button>
-                        <div style="font-size: 0.7rem; color: #888; margin-top: 10px; text-align: center;">
+                        <div style="font-size: 0.65rem; color: var(--text-dim); margin-top: 10px; text-align: center;">
                             ${data.is_m3u8 ? '*该视频为流媒体，后端将自动合并为 MP4' : '*直连下载，由后端代理转发以确保成功'}
                         </div>
                     </div>
                 </div>
             `;
+            
+            // 用 addEventListener 替代 inline onclick（避免 URL 编码问题）
+            document.getElementById('download-btn').addEventListener('click', () => {
+                if (window._currentVideoData) {
+                    startDownload(
+                        window._currentVideoData.url,
+                        encodeURIComponent(window._currentVideoData.title),
+                        window._currentVideoData.thumbnail,
+                        window._currentVideoData.is_m3u8
+                    );
+                }
+            });
+        }
+
+        /**
+         * 显示提示消息 / Show toast notification
+         */
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast-pixel ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
         }
 
         /**
@@ -420,6 +688,9 @@
         function startDownload(url, title, thumb, is_m3u8 = false) {
             const taskId = Date.now();
             const decodedTitle = decodeURIComponent(title);
+            
+            // 保存转换后的视频地址供历史记录使用
+            window._currentVideoUrl = url;
             
             // 添加到活跃任务列表 / Add to active tasks
             activeTasks.push({
@@ -469,12 +740,54 @@
             if (taskIndex > -1) {
                 const task = activeTasks.splice(taskIndex, 1)[0];
                 downloadHistory.unshift({
-                    ...task,
-                    date: new Date().toLocaleDateString()
+                    id: Date.now(),
+                    title: task.title,
+                    thumb: task.thumb,
+                    date: new Date().toLocaleDateString(),
+                    url: window._currentVideoUrl || ''  // 保存转换后的下载地址
                 });
                 // 持久化存储 / Save to localstorage
                 localStorage.setItem('x_hub_history', JSON.stringify(downloadHistory.slice(0, 50)));
                 renderTasks();
+            }
+        }
+
+        /**
+         * 复制到剪贴板 / Copy URL to clipboard
+         */
+        async function copyUrl(text, btnElement) {
+            try {
+                // 解码 URL（因为 HTML attribute 中的 encodeURIComponent）
+                const decodedText = decodeURIComponent(text);
+                
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(decodedText);
+                    showToast('已复制到剪贴板 / Copied!', 'success');
+                } else {
+                    // Fallback for older browsers
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    showToast('已复制到剪贴板 / Copied!', 'success');
+                }
+                
+                // 更新按钮状态
+                if (btnElement) {
+                    btnElement.innerHTML = '✅';
+                    btnElement.classList.add('copied');
+                    setTimeout(() => {
+                        btnElement.innerHTML = '📋';
+                        btnElement.classList.remove('copied');
+                    }, 2000);
+                }
+            } catch (err) {
+                showToast('复制失败 / Failed to copy', 'error');
+                console.error('Copy failed:', err);
             }
         }
 
@@ -511,15 +824,29 @@
                 return;
             }
 
-            container.innerHTML = downloadHistory.map(item => `
-                <div class="list-item">
-                    <img src="${item.thumb}" class="list-thumb">
-                    <div class="list-content">
-                        <div class="list-title">${item.title}</div>
-                        <div style="font-size: 0.75rem; opacity: 0.5;">已于 ${item.date} 下载完成</div>
+            container.innerHTML = downloadHistory.map(item => {
+                // 构建 URL 行（如果有）
+                let urlRow = '';
+                if (item.url && item.url !== '') {
+                    urlRow = `
+                        <div class="history-url-row">
+                            <span style="flex:1; overflow:hidden; text-overflow:ellipsis;">🔗 ${item.url}</span>
+                            <button class="copy-btn" onclick="event.stopPropagation(); copyUrl('${encodeURIComponent(item.url)}', this)" title="复制链接">📋</button>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="list-item">
+                        <img src="${item.thumb}" class="list-thumb">
+                        <div class="list-content">
+                            <div class="list-title">${item.title}</div>
+                            <div style="font-size: 0.7rem; opacity: 0.5;">已于 ${item.date} 下载完成</div>
+                            ${urlRow}
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // 初始化事件绑定 / Initial bindings
