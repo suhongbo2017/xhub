@@ -1,97 +1,121 @@
-# X Video Downloader (X HUB) - Ubuntu PWA 版本
+# X-HUB v1.0.0 — X (Twitter) Video Downloader
 
-本项目是一个专注于 Ubuntu 服务器部署的 X (Twitter) 视频下载后端服务。它被设计为提供纯粹的 Web (PWA) 体验，由 FastAPI 后端处理视频解析（基于 `yt-dlp`）和高速代理下载。
+> 一个专注于 PWA 体验的 X/Twitter 视频下载工具。  
+> 基于 FastAPI + yt-dlp，支持 HLS 自动合并、离线缓存、移动端原生安装。
 
-## 目录结构
+---
 
-- `server.py`: FastAPI 核心后端代码。
-- `index.html`: Web PWA 前端界面。
-- `sw.js` & `manifest.json`: PWA 服务工作线程与图标配置。
-- `xcookies.txt`: Twitter 的 Cookies 文件，用于绕过反爬机制。
-- `requirements.txt`: Python 依赖列表。
-- `start.sh`: 自动启动和依赖安装脚本。
-- `xhub.service`: Ubuntu Systemd 服务配置文件。
+## ✨ Features
 
-## Ubuntu 服务器部署指南
+- 🎯 **一键解析** — 粘贴 X 视频链接，自动获取元数据
+- 📥 **代理下载** — 后端代理转发，绕过 CORS & 防盗链
+- 🎞️ **HLS 合并** — 自动检测 m3u8 流，ffmpeg 合并为 MP4
+- 📱 **PWA 安装** — 支持添加到手机主屏幕，像原生 App 一样使用
+- 🌙 **复古 UI** — 黑金配色，优雅的桌面级界面
+- 🔍 **错误追踪** — 集中日志 + REST API 查看实时错误
+- 💾 **历史记录** — localStorage 持久化，随时回溯已下载内容
 
-假设您的 Ubuntu 服务器已经安装了 Nginx 并且配置了域名和 SSL 证书。
+---
 
-### 1. 准备运行环境
+## 📸 Preview
 
-确保系统安装了 `python3`、`python3-venv`、`python3-pip` 以及 `ffmpeg`（用于处理 m3u8 高清视频合并）。
+| Parser | Downloading | History |
+|--------|-------------|---------|
+| ![](https://via.placeholder.com/300x500/1a1a1a/ffd700?text=X-HUB+Parser) | ![](https://via.placeholder.com/300x500/1a1a1a/ffd700?text=X-HUB+Download) | ![](https://via.placeholder.com/300x500/1a1a1a/ffd700?text=X-HUB+History) |
 
-```bash
-sudo apt update
-sudo apt install python3 python3-venv python3-pip ffmpeg
-```
+*(Replace with real screenshots in production)*
 
-### 2. 部署代码
+---
 
-将本文件夹内的所有代码上传到服务器。建议放置在 `/opt/xhub` 目录下：
+## 🚀 Quick Start
 
-```bash
-sudo mkdir -p /opt/xhub
-# (使用 scp 或 git 拷贝代码到该目录)
-cd /opt/xhub
-
-# 赋予启动脚本执行权限
-sudo chmod +x start.sh
-```
-
-### 3. 配置开机自启与守护进程 (Systemd)
-
-打开随代码附带的 `xhub.service` 文件，确认里面的 `WorkingDirectory` 和 `ExecStart` 路径符合您的实际部署路径（默认配置为 `/opt/xhub`）。
-
-将该服务文件复制到 systemd 目录：
+### 本地运行
 
 ```bash
-sudo cp xhub.service /etc/systemd/system/
+# 1. 安装依赖
+pip install -r requirements.txt
+
+# 2. 启动服务
+python server.py
+
+# 或手动指定 uvicorn
+uvicorn server:app --host 0.0.0.0 --port 8866
 ```
 
-重新加载 systemd 并启动服务：
+### 浏览器访问
+
+打开 `http://localhost:8866`，粘贴 X 视频链接即可开始解析下载。
+
+---
+
+## 📦 Docker 部署
 
 ```bash
-sudo systemctl daemon-reload
-sudo systemctl enable xhub.service
-sudo systemctl start xhub.service
+docker build -t xhub:v1.0.0 .
+docker run -d --name xhub -p 8866:8866 -v ./xcookies.txt:/app/xcookies.txt:ro xhub:v1.0.0
 ```
 
-您可以查看服务状态以确保它正在正常运行并正在监听 8866 端口：
-```bash
-sudo systemctl status xhub.service
+详细部署指南请阅读 [DEPLOY.md](DEPLOY.md)。
+
+---
+
+## 🗂️ 项目结构
+
 ```
-*(注：`start.sh` 在首次运行时会自动创建虚拟环境并执行 `pip install -r requirements.txt`，所以初次启动可能需要等待几十秒完成安装)*
-
-### 4. Nginx 反向代理配置
-
-在您的 Nginx 配置文件中（通常位于 `/etc/nginx/sites-available/` 下），将访问请求反向代理至 8866 端口。例如：
-
-```nginx
-server {
-    listen 443 ssl;
-    server_name x.19831018.xyz;
-
-    # SSL 证书配置省略...
-
-    location / {
-        proxy_pass http://127.0.0.1:8866;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-配置完成后，重启 Nginx：
-```bash
-sudo systemctl restart nginx
+xhub/
+├── server.py              # FastAPI 后端核心
+├── index.html             # PWA 前端（复古 UI）
+├── manifest.json          # PWA 配置
+├── sw.js                  # Service Worker v1.0.0
+├── requirements.txt       # Python 依赖
+├── version.txt            # 版本号
+├── .gitignore             # Git 忽略规则
+├── DEPLOY.md              # 完整部署文档
+├── docker-compose.yml     # Docker Compose 配置
+├── Dockerfile             # Docker 构建文件
+├── xhub.service           # Systemd 守护进程
+└── cookies/               # Twitter Cookies 目录
 ```
 
-## 使用方法
+---
 
-部署完成后，在手机的 Safari 或 Chrome 浏览器中访问 `https://x.19831018.xyz`。
-由于具备完整的 SSL 和 Manifest 配置，浏览器会提示您**“添加到主屏幕”**。添加后，您可以像使用原生 App 一样全屏、独立运行 X HUB 进行视频下载。
+## 🔧 环境要求
 
-## 维护建议
+| Component | Version |
+|-----------|---------|
+| Python | ≥ 3.9 |
+| ffmpeg | Any |
+| yt-dlp | Latest |
+| Browser | Chrome / Firefox / Safari (modern) |
 
-如果遇到无法解析或解析画质受限的问题，说明当前的 Twitter Cookie 可能已经过期或被风控。请定期使用浏览器导出工具重新获取 Cookies，并覆盖服务器上的 `xcookies.txt` 文件。重启服务即可生效 (`sudo systemctl restart xhub.service`)。
+---
+
+## ⚠️ Cookie 管理
+
+Twitter 反爬机制会定期使 Cookies 失效。当出现解析失败时：
+
+1. 打开浏览器 DevTools → Application → Cookies
+2. 找到 Twitter 域名下的所有 cookie 值
+3. 复制并保存为 `xcookies.txt`（每行一个 cookie）
+4. 重启服务生效
+
+---
+
+## 🛠️ API 接口
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/parse` | 解析视频 URL |
+| GET  | `/api/download` | 代理下载视频 |
+| GET  | `/api/error-log` | 查看最近 200 条错误 |
+
+---
+
+## 📜 License
+
+MIT License — feel free to fork & modify.
+
+---
+
+*Powered by FastAPI, yt-dlp, vanilla JS.*  
+*Version 1.0.0 · 2026-08-25*

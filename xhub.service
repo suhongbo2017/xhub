@@ -1,14 +1,11 @@
 [Unit]
-Description=X-HUB Video Downloader PWA Backend
+Description=X-HUB v1.0.0 — X/Twitter Video Downloader PWA Backend
 After=network.target
 
 [Service]
-# 请根据你在 Ubuntu 上的实际路径修改 WorkingDirectory 和 ExecStart
-# 例如你把项目放在了 /opt/xhub
+# Adjust these paths to match your deployment directory
 WorkingDirectory=/opt/xhub
-
-# 执行启动脚本
-ExecStart=/bin/bash /opt/xhub/start.sh
+ExecStart=/opt/xhub/venv/bin/python -m uvicorn server:app --host 0.0.0.0 --port 8866
 
 # 进程崩溃后自动重启
 Restart=always

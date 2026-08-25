@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+venv/
+.env/
+
+# Logs
+*.log
+server.log
+server_error.log
+error_report.json
+
+# Runtime
+run.log
+downloads/*.mp4
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test (keep original test files removed)
+test_*.py
+api_test.py
+yt_diag.py
+*diag*.py
+
+# Credentials
+xcookies.txt
+
+# Build artifacts
+*.apk
+*.aab
+gradle/
+
+# Old backup
+old/

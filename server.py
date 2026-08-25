@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# X-HUB v1.0.0 — FastAPI Backend
 import sys
 import os
 import traceback
@@ -91,13 +92,25 @@ async def get_manifest():
         return FileResponse(path)
     return JSONResponse(status_code=404, content={"detail": "manifest.json not found"})
 
-@app.get("/sw.js")
-async def get_sw():
-    """提供 Service Worker (用于离线支持和 PWA 安装) / Serves the Service Worker"""
-    path = os.path.join(BASE_DIR, "sw.js")
-    if os.path.exists(path):
-        return FileResponse(path, media_type="application/javascript")
-    return JSONResponse(status_code=404, content={"detail": "sw.js not found"})
+# ==================== Version Info ====================
+def _read_version():
+    try:
+        with open(os.path.join(BASE_DIR, 'version.txt'), 'r') as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return 'dev'
+
+APP_VERSION = _read_version()
+
+@app.get("/api/version")
+async def get_version():
+    """返回当前版本号 / Returns current version info"""
+    return {"version": APP_VERSION, "name": "X-HUB", "platform": "Python/FastAPI"}
+
+@app.get("/health")
+async def health_check():
+    """健康检查 / Health check"""
+    return {"status": "ok", "version": APP_VERSION}
 
 @app.post("/api/parse")
 async def parse_video(request: Request):

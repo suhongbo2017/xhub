@@ -1,26 +1,20 @@
 {
-  "name": "X-HUB Downloader",
+  "name": "X-HUB Downloader v1.0.0",
   "short_name": "X-HUB",
-  "description": "Premium X Video Downloader",
+  "description": "X (Twitter) Video Downloader - PWA Edition",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#050a10",
-  "theme_color": "#00f2ff",
+  "background_color": "#1a1a1a",
+  "theme_color": "#ffd700",
   "icons": [
     {
-      "src": "https://abs.twimg.com/errors/logo46x38.png",
-      "sizes": "46x46",
-      "type": "image/png"
-    },
-    {
-      "src": "https://abs.twimg.com/errors/logo46x38.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://abs.twimg.com/errors/logo46x38.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%231a1a1a'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial Black,sans-serif' font-size='280' fill='%23ffd700'%3EXH%3C/text%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml"
     }
-  ]
+  ],
+  "categories": ["utilities", "multimedia"],
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "orientation": "portrait-primary"
 }

@@ -1,7 +1,9 @@
 services:
   - type: web
-    name: x-video-downloader
+    name: xhub
     env: python
-    region: singapore
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.7
