@@ -210,7 +210,17 @@ def proxy_download(background_tasks: BackgroundTasks, video_url: str, title: str
             cookie_path = os.path.join(BASE_DIR, "xcookies.txt")
             if os.path.exists(cookie_path): ydl_opts['cookiefile'] = cookie_path
             
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl: ydl.download([video_url])
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl: ydl.download([video_url])
+            except Exception as e:
+                err_msg = str(e).lower()
+                if 'readonly' in err_msg or 'read-only' in err_msg or 'errno 30' in err_msg:
+                    logger.warning(f"[MERGE] Ignoring non-fatal cookie write error: {e}")
+                    # Try re-download without cookies on readonly filesystem
+                    ydl_opts_nocookie = {k: v for k, v in ydl_opts.items() if k != 'cookiefile'}
+                    with yt_dlp.YoutubeDL(ydl_opts_nocookie) as ydl2: ydl2.download([video_url])
+                else:
+                    raise
             
             size_mb = os.path.getsize(out_path) / 1024 / 1024
             logger.info(f"[MERGE] Done: {safe_title}.mp4 ({size_mb:.1f} MB)")
