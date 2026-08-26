@@ -155,6 +155,7 @@ async def parse_video(request: Request):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             formats = info.get('formats', [])
+            quality = "Unknown"
             video_url = None
             is_m3u8 = False
             
