@@ -19,7 +19,7 @@ import uuid
 import urllib.request
 import urllib.error
 import urllib.parse
-from history_db import save_url, get_all, clear
+from history_db import save_url, get_all, clear, save_download
 
 # ==================== Logging Setup ====================
 class LogFormatter(logging.Formatter):
@@ -202,12 +202,28 @@ def proxy_download(background_tasks: BackgroundTasks, video_url: str, title: str
     1. MP4 直连通过后端转发流量，解决跨域下载问题
     2. m3u8 流由后端自动下载并使用 ffmpeg 合并为 MP4 后发送
     """
+    # 文件名清理（需在所有分支前定义）
+    safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).rstrip() or "video"
+    encoded_title = urllib.parse.quote(safe_title)
+
+    parsed_info = {}
     try:
         logger.info(f"[DOWNLOAD] From {video_url[:50]}... | {title[:40]} | m3u8:{is_m3u8}")
         
-        # 文件名清理 / Title sanitization
-        safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).rstrip() or "video"
-        encoded_title = urllib.parse.quote(safe_title)
+        # 解析视频 URL 提取时长等元数据
+        ydl_opts_meta = {'quiet': True, 'noplaylist': True, 'extract_flat': False}
+        cookie_path = os.path.join(BASE_DIR, "xcookies.txt")
+        if os.path.exists(cookie_path): ydl_opts_meta['cookiefile'] = cookie_path
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts_meta) as ydl:
+                meta = ydl.extract_info(video_url, download=False)
+                parsed_info = {
+                    "title": meta.get('title', title),
+                    "duration": meta.get('duration', 0),
+                    "thumbnail": meta.get('thumbnail', ''),
+                }
+        except Exception as e:
+            logger.warning(f"[DOWNLOAD] Could not fetch metadata: {e}")
 
         if is_m3u8:
             logger.info(f"[MERGE] Starting HLS merge...")
@@ -232,6 +248,9 @@ def proxy_download(background_tasks: BackgroundTasks, video_url: str, title: str
             
             size_mb = os.path.getsize(out_path) / 1024 / 1024
             logger.info(f"[MERGE] Done: {safe_title}.mp4 ({size_mb:.1f} MB)")
+            
+            # 保存下载记录到历史（使用传入的 title 参数，避免 yt-dlp 对直连 URL 提取错误标题）
+            _log_download(title, parsed_info.get("duration", 0), is_m3u8, video_url)
             
             # 后端异步清理：文件发送后自动删除 / Async cleanup: delete after serving
             background_tasks.add_task(lambda: shutil.rmtree(temp_dir, ignore_errors=True))
@@ -258,6 +277,9 @@ def proxy_download(background_tasks: BackgroundTasks, video_url: str, title: str
                     
             headers = {"Content-Disposition": f"attachment; filename*=utf-8''{encoded_title}.mp4"}
             if cl: headers["Content-Length"] = cl
+            
+            # 保存代理转发记录（使用传入的 title 参数）
+            _log_download(title, parsed_info.get("duration", 0), False, video_url)
             logger.info(f"[DOWNLOAD] Returning streaming response")
             return StreamingResponse(stream(), media_type="video/mp4", headers=headers)
     except HTTPException:
@@ -266,6 +288,23 @@ def proxy_download(background_tasks: BackgroundTasks, video_url: str, title: str
         err_msg = str(e)[:200]
         logger.error(f"[DOWNLOAD] FAILED: {err_msg}")
         raise HTTPException(status_code=400, detail=f"Download failed: {err_msg}")
+
+# ==================== Download Tracker Helper ====================
+def _log_download(title: str, duration: int, is_m3u8: bool, source_url: str):
+    """Append a download result to history."""
+    safe_title = title or "video"
+    logger.info(f"[HISTORY] Recording download: title={safe_title[:40]} dur={duration}")
+    try:
+        save_download({
+            "url": source_url,
+            "title": safe_title,
+            "duration": duration,
+            "quality": "HLS" if is_m3u8 else "MP4",
+            "is_m3u8": is_m3u8,
+            "source_url": source_url,
+        })
+    except Exception as e:
+        logger.warning(f"[HISTORY] Failed to log download: {e}")
 
 # ==================== Global Exception Handler ====================
 @app.exception_handler(Exception)

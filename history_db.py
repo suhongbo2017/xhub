@@ -17,13 +17,18 @@ def _conn():
 
 
 def _init():
-    """Create table if not exists."""
+    """Create table with migration support."""
     with _conn() as c:
         c.execute(
             """CREATE TABLE IF NOT EXISTS urls (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 url         TEXT UNIQUE NOT NULL,
-                timestamp   TEXT NOT NULL
+                timestamp   TEXT NOT NULL,
+                title       TEXT DEFAULT '',
+                duration    INTEGER DEFAULT 0,
+                quality     TEXT DEFAULT 'unknown',
+                is_m3u8     BOOLEAN DEFAULT 0,
+                source_url  TEXT DEFAULT ''
             )"""
         )
         c.execute("CREATE INDEX IF NOT EXISTS idx_urls_url ON urls(url)")
@@ -52,6 +57,45 @@ def get_all() -> list[dict]:
         "SELECT id, url, timestamp FROM urls ORDER BY id DESC"
     ).fetchall()
     return [{"id": r[0], "url": r[1], "timestamp": r[2], "status": "ok"} for r in rows]
+
+
+def save_download(record):
+    """Append a download result record. record is dict with title/duration/quality/is_m3u8/source_url."""
+    m3u8_flag = 1 if record.get("is_m3u8", False) else 0
+    with _conn() as c:
+        cur = c.execute(
+            "INSERT INTO urls (url, timestamp, title, duration, quality, is_m3u8, source_url) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (
+                record.get("url", ""),
+                datetime.datetime.now().isoformat(),
+                record.get("title", ""),
+                record.get("duration", 0),
+                record.get("quality", "unknown"),
+                m3u8_flag,
+                record.get("source_url", ""),
+            ),
+        )
+        return cur.lastrowid
+
+
+def get_all():
+    rows = _conn().execute(
+        "SELECT id, url, timestamp, title, duration, quality, is_m3u8, source_url FROM urls ORDER BY id DESC"
+    ).fetchall()
+    return [
+        {
+            "id": r[0],
+            "url": r[1],
+            "timestamp": r[2],
+            "status": "ok",
+            "title": r[3] or "",
+            "duration": r[4] or 0,
+            "quality": r[5] or "unknown",
+            "is_m3u8": bool(int(r[6])) if r[6] is not None else False,
+            "source_url": r[7] or "",
+        }
+        for r in rows
+    ]
 
 
 def clear():
