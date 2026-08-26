@@ -203,6 +203,11 @@ def proxy_download(background_tasks: BackgroundTasks, video_url: str, title: str
     1. MP4 直连通过后端转发流量，解决跨域下载问题
     2. m3u8 流由后端自动下载并使用 ffmpeg 合并为 MP4 后发送
     """
+    # 前置校验：拦截 null / 空 URL（防止解析失败后前端误传）
+    if not video_url or video_url.lower() == "null":
+        logger.error(f"[DOWNLOAD] Rejected invalid video_url: {repr(video_url)}")
+        raise HTTPException(status_code=400, detail="Invalid video URL — please re-parse the original tweet")
+    
     # 文件名清理（需在所有分支前定义）
     safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).rstrip() or "video"
     encoded_title = urllib.parse.quote(safe_title)

@@ -656,7 +656,11 @@
             
             // 用 addEventListener 替代 inline onclick（避免 URL 编码问题）
             document.getElementById('download-btn').addEventListener('click', () => {
-                if (window._currentVideoData) {
+                // 防护：确保有可用的视频 URL
+                if (!window._currentVideoData || !window._currentVideoData.url) {
+                    showToast('⚠️ No video URL available — please re-parse the tweet.', 'error');
+                    return;
+                }
                     startDownload(
                         window._currentVideoData.url,
                         encodeURIComponent(window._currentVideoData.title),
