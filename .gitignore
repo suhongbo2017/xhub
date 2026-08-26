@@ -37,6 +37,7 @@ yt_diag.py
 
 # Credentials
 xcookies.txt
+history.db
 
 # Build artifacts
 *.apk

@@ -19,6 +19,7 @@ import uuid
 import urllib.request
 import urllib.error
 import urllib.parse
+from history_db import save_url, get_all, clear
 
 # ==================== Logging Setup ====================
 class LogFormatter(logging.Formatter):
@@ -130,6 +131,13 @@ async def parse_video(request: Request):
         raise HTTPException(status_code=400, detail="Missing URL")
     
     logger.info(f"[PARSE] From {request.client.host} | URL: {url[:80]}")
+    
+    # 无论解析是否成功，都把原始链接持久化到本地数据库
+    try:
+        uid = save_url(url)
+        logger.info(f"[HISTORY] Saved url id={uid} | {url[:80]}")
+    except Exception as e:
+        logger.warning(f"[HISTORY] Failed to save url: {e}")
     
     # 查找本地是否有 Cookies 文件 / Check for local cookies file
     cookie_path = os.path.join(BASE_DIR, "xcookies.txt")
@@ -301,6 +309,18 @@ async def global_exception_handler(request: Request, exc: Exception):
 async def get_error_log(limit: int = 50):
     """返回最近的错误记录（用于调试）"""
     return {"errors": list(reversed(_error_buffer[-limit:]))}
+
+# ==================== URL History API ====================
+@app.get("/api/history")
+def list_history():
+    """返回所有已保存的链接记录 / Returns all saved URL records"""
+    return get_all()
+
+@app.delete("/api/db/clear")
+def db_clear():
+    """清空历史记录 / Clear all history records"""
+    clear()
+    return {"status": "cleared"}
 
 if __name__ == "__main__":
     # 服务默认绑定在 8866 端口 / Running on port 8866 by default
