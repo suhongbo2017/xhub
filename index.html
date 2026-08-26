@@ -661,13 +661,12 @@
                     showToast('⚠️ No video URL available — please re-parse the tweet.', 'error');
                     return;
                 }
-                    startDownload(
-                        window._currentVideoData.url,
-                        encodeURIComponent(window._currentVideoData.title),
-                        window._currentVideoData.thumbnail,
-                        window._currentVideoData.is_m3u8
-                    );
-                }
+                startDownload(
+                    window._currentVideoData.url,
+                    encodeURIComponent(window._currentVideoData.title),
+                    window._currentVideoData.thumbnail,
+                    window._currentVideoData.is_m3u8
+                );
             });
         }
 
