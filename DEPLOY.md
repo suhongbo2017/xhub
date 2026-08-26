@@ -1,7 +1,7 @@
-# X-HUB v1.0.0 — Deployment Guide
+# X-HUB — Deployment Guide v1.2.0
 
 This document describes how to deploy **X-HUB** (X/Twitter Video Downloader) on various platforms.  
-Version: **1.0.0** | Last updated: 2026-08-25
+Version: **1.2.0** | Last updated: 2026-08-26
 
 ---
 
@@ -31,7 +31,7 @@ Version: **1.0.0** | Last updated: 2026-08-25
 
 ```bash
 sudo apt update
-sudo apt install -y python3 python3-pip python3-venv ffmpeg
+sudo apt install -y python3 python3-pip python3-venv ffmpeg curl wget
 ```
 
 ### 2. Clone & setup
@@ -50,7 +50,7 @@ pip install -r requirements.txt
 Export your Twitter cookies from browser DevTools → Application → Cookies → `xcookies.txt`.  
 Place it in `/opt/xhub/xcookies.txt`.
 
-> **⚠️ Cookies expire periodically.** Re-export when parsing fails.
+> ⚠️ **Cookies expire periodically.** Re-export when parsing fails.
 
 ### 4. Start the server
 
@@ -93,44 +93,16 @@ Restart: `sudo systemctl restart nginx`
 
 ## Method B: Docker (Recommended for Production)
 
-### Dockerfile
-
-```dockerfile
-FROM python:3.11-slim
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends ffmpeg curl && \
-    rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-EXPOSE 8866
-
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8866"]
-```
-
 ### Build & run
 
 ```bash
-docker build -t xhub:v1.0.0 .
-docker run -d \
-  --name xhub \
-  -p 8866:8866 \
-  -v $(pwd)/xcookies.txt:/app/xcookies.txt:ro \
-  -v $(pwd)/logs:/app/logs \
-  --restart unless-stopped \
-  xhub:v1.0.0
+cd /opt/xhub
+docker compose up -d --build
 ```
 
 ### docker-compose.yml
 
 ```yaml
-version: '3.8'
 services:
   xhub:
     build: .
@@ -138,14 +110,26 @@ services:
     ports:
       - "8866:8866"
     volumes:
-      - ./xcookies.txt:/app/xcookies.txt:ro
+      - ./xcookies.txt:/app/xcookies.txt
+      - ./cookies:/app/cookies
       - ./logs:/app/logs
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8866/"]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
 ```
 
-```bash
-docker compose up -d --build
-```
+### Volume Mapping Summary
+
+| Container Path | Host Path | Mode | Description |
+|----------------|-----------|------|-------------|
+| `/app/xcookies.txt` | `./xcookies.txt` | rw | Twitter auth cookies |
+| `/app/cookies` | `./cookies` | rw | Additional cookie storage |
+| `/app/logs` | `./logs` | rw | Server log output |
+| `/app/history.db` | *(auto-created)* | rw | SQLite history database |
 
 ---
 
@@ -160,6 +144,8 @@ docker compose up -d --build
 5. Deploy
 
 Add `xcookies.txt` via Environment Variable or mount as secret.
+
+> ⚠️ Render's free tier spins down after 15 min of inactivity, so first request will have a cold start delay (~30s).
 
 ---
 
@@ -177,9 +163,13 @@ uvicorn server:app --host 0.0.0.0 --port $PORT
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/parse` | Parse X video URL → return metadata |
-| GET  | `/api/download?video_url=...&title=...` | Proxy download or merge HLS |
-| GET  | `/api/error-log` | View last 200 server errors |
+| `POST` | `/api/parse` | Parse X video URL → return metadata |
+| `GET`  | `/api/download?video_url=...&title=...` | Proxy download or merge HLS |
+| `GET`  | `/api/history` | View all saved URL records |
+| `DELETE` | `/api/db/clear` | Clear all history records |
+| `GET`  | `/api/error-log` | View last 200 server errors |
+| `GET`  | `/health` | Health check |
+| `GET`  | `/api/version` | Returns current version info |
 
 ### Parse Request Example
 
@@ -204,6 +194,30 @@ Response:
 }
 ```
 
+### History API Response
+
+```bash
+curl http://localhost:8866/api/history
+```
+
+```json
+[
+  {
+    "id": 10,
+    "url": "https://x.com/user/status/abc/video/1",
+    "timestamp": "2026-08-26T14:30:00",
+    "status": "ok",
+    "title": "Weather Monitor - Today...",
+    "duration": 42,
+    "quality": "MP4",
+    "is_m3u8": false,
+    "source_url": "https://video.twimg.com/amplify_video/..."
+  }
+]
+```
+
+Records are sorted newest-first (`ORDER BY id DESC`). Each record tracks both parse events and download results.
+
 ---
 
 ## File Structure
@@ -211,20 +225,24 @@ Response:
 ```
 xhub/
 ├── server.py              # FastAPI backend (core)
+├── history_db.py          # SQLite history storage module
 ├── index.html             # PWA frontend (retro UI)
 ├── manifest.json          # PWA manifest
-├── sw.js                  # Service Worker v1.0.0
+├── sw.js                  # Service Worker
 ├── requirements.txt       # Python deps
-├── version.txt            # Current version: 1.0.0
+├── version.txt            # Current version: 1.2.0
 ├── .gitignore             # Git ignore rules
 ├── Dockerfile             # Docker build config
 ├── docker-compose.yml     # Docker Compose config
+├── tests/                 # pytest integration tests
+│   └── test_url_history.py
 ├── DEPLOY.md              # This file
 ├── README.md              # Project overview
 ├── xhub.service           # Systemd unit file
 ├── start.sh               # Bash startup script
 ├── render.yaml            # Render.com config
-└── cookies/               # Cookie directory (optional)
+├── cookies/               # Cookie directory (optional)
+└── logs/                  # Runtime log output
 ```
 
 ---
@@ -234,10 +252,11 @@ xhub/
 | Symptom | Fix |
 |---------|-----|
 | 解析失败 / Parsing failed | Refresh `xcookies.txt` — cookies expire |
-| 浏览器不显示新 UI | Clear SW cache: DevTools → Application → Service Workers → Unregister |
+| Browser doesn't show new UI | Clear SW cache: DevTools → Application → Service Workers → Unregister |
 | HLS 视频无法合并 | `ffmpeg` not installed — `apt install ffmpeg` |
 | Port 8866 被占用 | Change port in `uvicorn` command & firewall |
 | CORS errors | Ensure correct origin in Nginx config |
+| Docker health check unhealthy | First startup takes ~15s (start_period); retry after waiting |
 
 ---
 
@@ -245,6 +264,8 @@ xhub/
 
 | Version | Date | Notes |
 |---------|------|-------|
+| 1.2.0 | 2026-08-26 | Added URL history system (auto-save parse + download); added `history_db.py` module; added pytest integration tests; fixed read-only filesystem cookie write error |
+| 1.1.0 | 2026-08-25 | Initial URL history functionality, basic CRUD API |
 | 1.0.0 | 2026-08-25 | Initial stable release. Retro black-gold UI, centralized logging, PWA hardening |
 
 ---

@@ -1,9 +1,10 @@
 """Minimal URL History — SQLite-backed key-value store.
 
 Public API (the only seam tests exercise):
-    save_url(url)       → id | dedup by exact URL string
-    get_all()           → list[dict] sorted newest-first
-    clear()             → delete everything
+    save_url(url)         → int | dedup by exact URL string
+    save_download(record) → int | append download result metadata
+    get_all()             → list[dict] sorted newest-first
+    clear()               → delete everything
 """
 import os
 import sqlite3
@@ -52,19 +53,16 @@ def save_url(url: str) -> int:
             return row[0] if row else None
 
 
-def get_all() -> list[dict]:
-    rows = _conn().execute(
-        "SELECT id, url, timestamp FROM urls ORDER BY id DESC"
-    ).fetchall()
-    return [{"id": r[0], "url": r[1], "timestamp": r[2], "status": "ok"} for r in rows]
+def save_download(record: dict) -> int:
+    """Append a download result record.
 
-
-def save_download(record):
-    """Append a download result record. record is dict with title/duration/quality/is_m3u8/source_url."""
+    ``record`` should have: url, title, duration, quality, is_m3u8, source_url.
+    """
     m3u8_flag = 1 if record.get("is_m3u8", False) else 0
     with _conn() as c:
         cur = c.execute(
-            "INSERT INTO urls (url, timestamp, title, duration, quality, is_m3u8, source_url) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            """INSERT INTO urls (url, timestamp, title, duration, quality, is_m3u8, source_url)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
             (
                 record.get("url", ""),
                 datetime.datetime.now().isoformat(),
@@ -78,9 +76,11 @@ def save_download(record):
         return cur.lastrowid
 
 
-def get_all():
+def get_all() -> list[dict]:
+    """Return all records ordered newest-first with normalized fields."""
     rows = _conn().execute(
-        "SELECT id, url, timestamp, title, duration, quality, is_m3u8, source_url FROM urls ORDER BY id DESC"
+        "SELECT id, url, timestamp, title, duration, quality, is_m3u8, source_url "
+        "FROM urls ORDER BY id DESC"
     ).fetchall()
     return [
         {
@@ -99,6 +99,7 @@ def get_all():
 
 
 def clear():
+    """Delete all history records."""
     with _conn() as c:
         c.execute("DELETE FROM urls")
 
