@@ -693,8 +693,9 @@
             const taskId = Date.now();
             const decodedTitle = decodeURIComponent(title);
             
-            // 保存原始推文链接和历史页面（用于历史记录展示）
+            // 保存原始推文链接、视频直链和缩略图（用于历史记录展示）
             window._currentVideoUrl = window._currentVideoData?.tweet_url || window._currentVideoData?.url || '';
+            window._currentDirectVideoUrl = url;  // 解析后的视频直链
             window._currentThumbUrl = thumb;
             
             // 添加到活跃任务列表 / Add to active tasks
@@ -750,7 +751,8 @@
                     title: task.title,
                     thumb: task.thumb,
                     date: new Date().toLocaleDateString(),
-                    url: window._currentVideoUrl || ''  // 保存转换后的下载地址
+                    tweetUrl: window._currentVideoUrl || '',       // 原始推文页面链接
+                    videoUrl: window._currentDirectVideoUrl || ''   // 解析后的视频直链
                 });
                 // 持久化存储 / Save to localstorage
                 localStorage.setItem('x_hub_history', JSON.stringify(downloadHistory.slice(0, 50)));
@@ -859,19 +861,38 @@
             }
 
             container.innerHTML = downloadHistory.map(item => {
-                // 构建 URL 行（如果有）
-                let urlRow = '';
-                if (item.url && item.url !== '') {
-                    urlRow = `
-                        <a href="${item.url}" target="_blank" rel="noopener noreferrer" 
+                // 构建 URL 行（推文页面链接 + 视频直链）
+                let urlRows = '';
+                
+                // 第一条：原始推文页面链接
+                if (item.tweetUrl && item.tweetUrl !== '') {
+                    urlRows += `
+                        <a href="${item.tweetUrl}" target="_blank" rel="noopener noreferrer" 
                            style="text-decoration:none;color:var(--yellow-dark);font-size:0.7rem;overflow:hidden;text-overflow:ellipsis;display:block;white-space:nowrap;width:100%;cursor:pointer;">
-                            🔗 ${item.url}
+                            🐦 ${item.tweetUrl}
                         </a>
                         <div style="display:flex;gap:4px;margin-top:2px;justify-content:flex-end;padding-right:4px;">
-                            <button class="copy-btn" data-url="${item.url}" onclick="event.preventDefault(); event.stopPropagation(); copyFromDataUrl(this)" title="复制链接">📋</button>
+                            <button class="copy-btn" data-url="${item.tweetUrl}" onclick="event.preventDefault(); event.stopPropagation(); copyFromDataUrl(this)" title="复制推文链接">📋</button>
                             <button class="copy-btn" onclick="event.preventDefault(); event.stopPropagation(); openHistoryItem(${item.id})" title="打开推文">🔗</button>
                         </div>
                     `;
+                }
+                
+                // 第二条：解析后的视频直链
+                if (item.videoUrl && item.videoUrl !== '') {
+                    urlRows += `
+                        <a href="${item.videoUrl}" target="_blank" rel="noopener noreferrer"
+                           style="text-decoration:none;color:#4CAF50;font-size:0.7rem;overflow:hidden;text-overflow:ellipsis;display:block;white-space:nowrap;width:100%;cursor:pointer;margin-top:6px;">
+                            🎬 ${item.videoUrl.length > 50 ? item.videoUrl.substring(0, 50) + '...' : item.videoUrl}
+                        </a>
+                        <div style="display:flex;gap:4px;margin-top:2px;justify-content:flex-end;padding-right:4px;">
+                            <button class="copy-btn" data-url="${item.videoUrl}" onclick="event.preventDefault(); event.stopPropagation(); copyFromDataUrl(this)" title="复制视频链接">📋</button>
+                        </div>
+                    `;
+                }
+                
+                if (!urlRows) {
+                    urlRows = '<span style="font-size:0.7rem;opacity:0.3">无可用链接</span>';
                 }
                 
                 return `
@@ -880,7 +901,7 @@
                         <div class="list-content">
                             <div class="list-title">${item.title}</div>
                             <div style="font-size: 0.7rem; opacity: 0.5;">已于 ${item.date} 下载完成</div>
-                            ${urlRow}
+                            ${urlRows}
                         </div>
                     </div>
                 `;
