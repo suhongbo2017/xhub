@@ -693,8 +693,9 @@
             const taskId = Date.now();
             const decodedTitle = decodeURIComponent(title);
             
-            // 保存转换后的视频地址供历史记录使用
-            window._currentVideoUrl = url;
+            // 保存原始推文链接和历史页面（用于历史记录展示）
+            window._currentVideoUrl = window._currentVideoData?.tweet_url || window._currentVideoData?.url || '';
+            window._currentThumbUrl = thumb;
             
             // 添加到活跃任务列表 / Add to active tasks
             activeTasks.push({
@@ -708,7 +709,8 @@
             switchView('tasks');
 
             // 构造下载请求 URL / Build download URL
-            const downloadUrl = `${API_BASE}/api/download?video_url=${encodeURIComponent(url)}&title=${title}&is_m3u8=${is_m3u8}`;
+            const tweet_url = window._currentVideoData?.tweet_url || url;
+            const downloadUrl = `${API_BASE}/api/download?video_url=${encodeURIComponent(url)}&title=${title}&is_m3u8=${is_m3u8}&tweet_url=${encodeURIComponent(tweet_url)}`;
             
             // 使用隐形 A 标签触发浏览器原生下载弹窗
             // Use anchor to trigger native browser download
@@ -770,7 +772,7 @@
                 } else {
                     // Fallback for older browsers
                     const textarea = document.createElement('textarea');
-                    textarea.value = text;
+                    textarea.value = decodedText;
                     textarea.style.position = 'fixed';
                     textarea.style.opacity = '0';
                     document.body.appendChild(textarea);
@@ -833,9 +835,13 @@
                 let urlRow = '';
                 if (item.url && item.url !== '') {
                     urlRow = `
-                        <div class="history-url-row">
-                            <span style="flex:1; overflow:hidden; text-overflow:ellipsis;">🔗 ${item.url}</span>
-                            <button class="copy-btn" onclick="event.stopPropagation(); copyUrl('${encodeURIComponent(item.url)}', this)" title="复制链接">📋</button>
+                        <a href="${item.url}" target="_blank" rel="noopener noreferrer" 
+                           style="text-decoration:none;color:var(--yellow-dark);font-size:0.7rem;overflow:hidden;text-overflow:ellipsis;display:block;white-space:nowrap;width:100%;cursor:pointer;">
+                            🔗 ${item.url}
+                        </a>
+                        <div style="display:flex;gap:4px;margin-top:2px;justify-content:flex-end;padding-right:4px;">
+                            <button class="copy-btn" onclick="event.preventDefault(); event.stopPropagation(); copyUrl('${encodeURIComponent(item.url)}', this)" title="复制链接">📋</button>
+                            <button class="copy-btn" onclick="event.preventDefault(); event.stopPropagation(); openHistoryItem(${item.id})" title="打开推文">🔗</button>
                         </div>
                     `;
                 }
