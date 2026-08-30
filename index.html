@@ -759,7 +759,35 @@
         }
 
         /**
-         * 复制到剪贴板 / Copy URL to clipboard
+         * 从 data-url 属性复制原始 URL（避免浏览器对 onclick 参数二次编码）
+         */
+        async function copyFromDataUrl(btnElement) {
+            const url = btnElement.getAttribute('data-url') || '';
+            try {
+                await navigator.clipboard.writeText(url);
+                showToast('已复制到剪贴板 / Copied!', 'success');
+            } catch (err) {
+                // Fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = url;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('已复制到剪贴板 / Copied!', 'success');
+            }
+            btnElement.innerHTML = '✅';
+            btnElement.classList.add('copied');
+            setTimeout(() => {
+                btnElement.innerHTML = '📋';
+                btnElement.classList.remove('copied');
+            }, 2000);
+        }
+
+        /**
+         * 复制到剪贴板（通用版本，用于其他地方需要带编码参数的场景）
          */
         async function copyUrl(text, btnElement) {
             try {
@@ -840,7 +868,7 @@
                             🔗 ${item.url}
                         </a>
                         <div style="display:flex;gap:4px;margin-top:2px;justify-content:flex-end;padding-right:4px;">
-                            <button class="copy-btn" onclick="event.preventDefault(); event.stopPropagation(); copyUrl('${encodeURIComponent(item.url)}', this)" title="复制链接">📋</button>
+                            <button class="copy-btn" data-url="${item.url}" onclick="event.preventDefault(); event.stopPropagation(); copyFromDataUrl(this)" title="复制链接">📋</button>
                             <button class="copy-btn" onclick="event.preventDefault(); event.stopPropagation(); openHistoryItem(${item.id})" title="打开推文">🔗</button>
                         </div>
                     `;
